@@ -3,6 +3,8 @@ import sys
 
 from const import *
 from game import Game
+from square import Square
+from move import Move
 
 class Main:
 
@@ -20,9 +22,9 @@ class Main:
         dragger = self.game.dragger
         
         while True:
-            # hiện background
             game.show_bg(screen)
-            # hiện quân cờ
+            game.show_last_move(screen)
+            game.show_moves(screen)
             game.show_pieces(screen)
 
             if dragger.dragging:
@@ -38,23 +40,54 @@ class Main:
                     clicked_col = dragger.mouseX // SQSIZE
 
                     if board.squares[clicked_row][clicked_col].has_piece():
+                        # chinh
+                        game.reset_moves()
                         piece = board.squares[clicked_row][clicked_col].piece
-                        dragger.save_initial(event.pos)
-                        dragger.drag_piece(piece)
-                        # chỉnh mouse cursor khi dragging 
-                        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                        if piece.color == game.next_player:
+                            board.calc_moves(piece, clicked_row, clicked_col)
+                            dragger.save_initial(event.pos)
+                            dragger.drag_piece(piece)
+                            # chỉnh mouse cursor khi dragging 
+                            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                            game.show_bg(screen)
+                            game.show_last_move(screen)
+                            game.show_moves(screen)
+                            game.show_pieces(screen)
 
                 # lắng nghe sự kiện di chuyển chuột
                 elif event.type == pygame.MOUSEMOTION:
                     if dragger.dragging:
                         dragger.update_mouse(event.pos)
                         game.show_bg(screen)
+                        game.show_last_move(screen)
+                        game.show_moves(screen)
                         game.show_pieces(screen)
                         dragger.update_blit(screen)
 
                 # lắng nghe sự kiện nhả chuột
                 elif event.type == pygame.MOUSEBUTTONUP:
+                    if dragger.dragging:
+                        dragger.update_mouse(event.pos)
+                        released_row = dragger.mouseY // SQSIZE
+                        released_col = dragger.mouseX // SQSIZE
+
+                        initial = Square(dragger.initial_row, dragger.initial_col)
+                        final = Square(released_row, released_col)
+                        move = Move(initial, final)
+
+                        if board.valid_move(dragger.piece, move):
+                            captured = board.squares[released_row][released_col].has_piece()
+
+                            board.move(dragger.piece, move)
+
+                            game.play_sound(captured)
+                            game.show_bg(screen)
+                            game.show_last_move(screen)
+                            game.show_pieces(screen)
+                            game.next_turn()
+
                     dragger.undrag_piece()
+                        
                     # chỉnh mouse cursor sau khi dragging 
                     pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
