@@ -44,7 +44,7 @@ class Main:
                         game.reset_moves()
                         piece = board.squares[clicked_row][clicked_col].piece
                         if piece.color == game.next_player:
-                            board.calc_moves(piece, clicked_row, clicked_col)
+                            board.calc_moves(piece, clicked_row, clicked_col, bool=True)
                             dragger.save_initial(event.pos)
                             dragger.drag_piece(piece)
                             # chỉnh mouse cursor khi dragging 
@@ -80,10 +80,12 @@ class Main:
 
                             board.move(dragger.piece, move)
 
+                            board.set_true_en_passant(dragger.piece)
                             game.play_sound(captured)
                             game.show_bg(screen)
                             game.show_last_move(screen)
                             game.show_pieces(screen)
+
                             game.next_turn()
 
                     dragger.undrag_piece()
