@@ -44,7 +44,7 @@ class Board:
 
         # nhập thành
         if isinstance(piece, King):
-            if self.castling(initial, final):
+            if self.castling(initial, final) and not testing:
                 diff = final.col - initial.col
                 rook = piece.left_rook if (diff < 0) else piece.right_rook
                 self.move(rook, rook.moves[-1])
@@ -84,7 +84,7 @@ class Board:
         temp_piece = copy.deepcopy(piece)
         temp_board = copy.deepcopy(self)
         temp_board.move(temp_piece, move, testing=True)
-        
+
         for row in range(ROWS):
             for col in range(COLS):
                 if temp_board.squares[row][col].has_enemy_piece(piece.color):
@@ -235,9 +235,9 @@ class Board:
                 (row+0, col+1),
                 (row+1, col+1), 
                 (row+1, col+0), 
-                (row+1, col-1), 
+                (row+1, col-1),
                 (row+0, col-1), 
-                (row-1, col-1)
+                (row-1, col-1), 
             ]
 
             for possible_move in adjs:
@@ -246,15 +246,15 @@ class Board:
                 if Square.in_range(possible_move_row, possible_move_col):
                     if self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color):
                         initial = Square(row, col)
-                        final = Square(possible_move_row, possible_move_col)
+                        final = Square(possible_move_row, possible_move_col) 
                         move = Move(initial, final)
                         if bool:
                             if not self.in_check(piece, move):
                                 piece.add_move(move)
-                            else: break
                         else:
                             piece.add_move(move)
-            
+
+            # nhập thành
             if not piece.moved:
                 left_rook = self.squares[row][0].piece
                 if isinstance(left_rook, Rook):
@@ -264,7 +264,6 @@ class Board:
                                 break
 
                             if c == 3:
-                                # thêm left_rook vào king
                                 piece.left_rook = left_rook
 
                                 initial = Square(row, 0)
@@ -272,15 +271,16 @@ class Board:
                                 moveR = Move(initial, final)
 
                                 initial = Square(row, col)
-                                final = Square(row,2)
+                                final = Square(row, 2)
                                 moveK = Move(initial, final)
+
                                 if bool:
                                     if not self.in_check(piece, moveK) and not self.in_check(left_rook, moveR):
-                                        piece.add_move(moveK)
                                         left_rook.add_move(moveR)
+                                        piece.add_move(moveK)
                                 else:
-                                    piece.add_move(moveK)
                                     left_rook.add_move(moveR)
+                                    piece.add_move(moveK)
 
                 right_rook = self.squares[row][7].piece
                 if isinstance(right_rook, Rook):
@@ -290,7 +290,6 @@ class Board:
                                 break
 
                             if c == 6:
-                                # thêm left_rook vào king
                                 piece.right_rook = right_rook
 
                                 initial = Square(row, 7)
@@ -298,16 +297,16 @@ class Board:
                                 moveR = Move(initial, final)
 
                                 initial = Square(row, col)
-                                final = Square(row,6)
+                                final = Square(row, 6)
                                 moveK = Move(initial, final)
 
                                 if bool:
                                     if not self.in_check(piece, moveK) and not self.in_check(right_rook, moveR):
-                                        piece.add_move(moveK)
                                         right_rook.add_move(moveR)
+                                        piece.add_move(moveK)
                                 else:
-                                    piece.add_move(moveK)
                                     right_rook.add_move(moveR)
+                                    piece.add_move(moveK)
 
         if isinstance(piece, Pawn): 
             pawn_moves()

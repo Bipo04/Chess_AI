@@ -49,6 +49,7 @@ class Main:
                             dragger.drag_piece(piece)
                             # chỉnh mouse cursor khi dragging 
                             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                            
                             game.show_bg(screen)
                             game.show_last_move(screen)
                             game.show_moves(screen)

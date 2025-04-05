@@ -1,2 +1,0 @@
-
-        dragger = self.game.dragger
