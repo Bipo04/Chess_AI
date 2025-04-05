@@ -30,6 +30,21 @@ class Game:
 
                 pygame.draw.rect(surface, color, rect)
 
+
+        letters = 'abcdefgh'
+        font = pygame.font.SysFont("Arial", 18, bold=True)
+        for row in range(ROWS):
+            label = font.render(str(ROWS - row), True, (234, 235, 200)) if row%2 == 1 else font.render(str(ROWS - row), True, (119, 154, 88))
+            x = 5 
+            y = row * SQSIZE + 5
+            surface.blit(label, (x, y))
+
+        for col in range(COLS):
+            label = font.render(letters[col], True, (119, 154, 88)) if col%2 == 1 else font.render(letters[col], True, (234, 235, 200))
+            x = col * SQSIZE + SQSIZE // 2 + 28
+            y = ROWS * SQSIZE - 22
+            surface.blit(label, (x, y))
+
     def show_pieces(self, surface):
         for row in range(ROWS):
             for col in range(COLS):
@@ -65,10 +80,6 @@ class Game:
                     pygame.gfxdraw.filled_circle(surface, center_x, center_y, radius, light_gray)
                     pygame.gfxdraw.aacircle(surface, center_x, center_y, radius, light_gray)
                     self.drawn_moves.add((move.final.row, move.final.col))
-                
-                    # color = '#C86464' if (move.final.row + move.final.col) % 2 == 0 else '#C84646' 
-                    # rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
-                    # pygame.draw.rect(surface, color, rect)
 
     # chinh
     def reset_moves(self):

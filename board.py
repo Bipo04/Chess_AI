@@ -67,6 +67,19 @@ class Board:
     def castling(seft, initial, final):
         return abs(initial.col - final.col) == 2
     
+    def check_castling(self, color):
+        check_squares = [Square(7,2), Square(7,3), Square(7,5), Square(7,6)]
+        temp_board = copy.deepcopy(self)
+        for row in range(ROWS):
+            for col in range(COLS):
+                if temp_board.squares[row][col].has_enemy_piece(color):
+                    p = temp_board.squares[row][col].piece
+                    temp_board.calc_moves(p, row, col, bool=False)
+                    for m in p.moves:
+                        if m.final in check_squares:
+                            return True
+        return False
+    
     def set_true_en_passant(self, piece):
         
         if not isinstance(piece, Pawn):
@@ -80,14 +93,17 @@ class Board:
         piece.en_passant = True
     
     # kiểm tra có phải nước cuối ko
-    def in_check(self, piece, move):
-        temp_piece = copy.deepcopy(piece)
+    def in_check(self, piece1, move1, piece2=None, move2=None):
         temp_board = copy.deepcopy(self)
-        temp_board.move(temp_piece, move, testing=True)
+        temp_piece = copy.deepcopy(piece1)
+        temp_board.move(temp_piece, move1, testing=True)
+        if(piece2 != None):
+            temp_piece = copy.deepcopy(piece2)
+            temp_board.move(temp_piece, move2, testing=True)
 
         for row in range(ROWS):
             for col in range(COLS):
-                if temp_board.squares[row][col].has_enemy_piece(piece.color):
+                if temp_board.squares[row][col].has_enemy_piece(piece1.color):
                     p = temp_board.squares[row][col].piece
                     temp_board.calc_moves(p, row, col, bool=False)
                     for m in p.moves:
@@ -274,13 +290,14 @@ class Board:
                                 final = Square(row, 2)
                                 moveK = Move(initial, final)
 
-                                if bool:
-                                    if not self.in_check(piece, moveK) and not self.in_check(left_rook, moveR):
+                                if not self.check_castling(piece.color):
+                                    if bool:
+                                        if not self.in_check(piece, moveK, left_rook, moveR):
+                                            left_rook.add_move(moveR)
+                                            piece.add_move(moveK)
+                                    else:
                                         left_rook.add_move(moveR)
                                         piece.add_move(moveK)
-                                else:
-                                    left_rook.add_move(moveR)
-                                    piece.add_move(moveK)
 
                 right_rook = self.squares[row][7].piece
                 if isinstance(right_rook, Rook):
@@ -299,14 +316,14 @@ class Board:
                                 initial = Square(row, col)
                                 final = Square(row, 6)
                                 moveK = Move(initial, final)
-
-                                if bool:
-                                    if not self.in_check(piece, moveK) and not self.in_check(right_rook, moveR):
+                                if not self.check_castling(piece.color):
+                                    if bool:
+                                        if not self.in_check(piece, moveK, right_rook, moveR):
+                                            right_rook.add_move(moveR)
+                                            piece.add_move(moveK)
+                                    else:
                                         right_rook.add_move(moveR)
                                         piece.add_move(moveK)
-                                else:
-                                    right_rook.add_move(moveR)
-                                    piece.add_move(moveK)
 
         if isinstance(piece, Pawn): 
             pawn_moves()
