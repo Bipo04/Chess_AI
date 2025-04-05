@@ -374,7 +374,6 @@ class Board:
         # tạo quân tốt
         for col in range(COLS):
             self.squares[row_pawn][col] = Square(row_pawn, col, Pawn(color))
-        self.squares[5][2] = Square(row_pawn, col, Pawn("black"))
         # tạo quân mã
         self.squares[row_other][1] = Square(row_pawn, col, Knight(color))
         self.squares[row_other][6] = Square(row_pawn, col, Knight(color))
