@@ -38,9 +38,9 @@ class Board:
                         os.path.join('assets/sounds/capture.wav'))
                     sound.play()
 
-            # phong cấp tốt
-            else:
-                self.check_promotion(piece, final)
+            # # phong cấp tốt
+            # else:
+            #     self.check_promotion(piece, final)
 
         # nhập thành
         if isinstance(piece, King):
@@ -67,6 +67,7 @@ class Board:
     def castling(seft, initial, final):
         return abs(initial.col - final.col) == 2
     
+    # kiểm tra xem có quân địch nào chặn đường nhập thành hay không
     def check_castling(self, color):
         check_squares = [Square(7,2), Square(7,3), Square(7,5), Square(7,6)]
         temp_board = copy.deepcopy(self)
@@ -373,7 +374,7 @@ class Board:
         # tạo quân tốt
         for col in range(COLS):
             self.squares[row_pawn][col] = Square(row_pawn, col, Pawn(color))
-
+        self.squares[5][2] = Square(row_pawn, col, Pawn("black"))
         # tạo quân mã
         self.squares[row_other][1] = Square(row_pawn, col, Knight(color))
         self.squares[row_other][6] = Square(row_pawn, col, Knight(color))

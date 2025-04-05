@@ -22,8 +22,11 @@ class Main:
         dragger = self.game.dragger
         
         while True:
+            game.check_promotion()
             game.show_bg(screen)
             game.show_last_move(screen)
+            if game.promotion_col:
+                game.show_choose_promotion(screen)
             game.show_moves(screen)
             game.show_pieces(screen)
 
@@ -31,15 +34,25 @@ class Main:
                 dragger.update_blit(screen)
 
             for event in pygame.event.get():
-
                 # lắng nghe sự kiện click chuột
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     dragger.update_mouse(event.pos)
 
                     clicked_row = dragger.mouseY // SQSIZE
                     clicked_col = dragger.mouseX // SQSIZE
+                    if game.promotion_col:
+                        if clicked_col == game.promotion_col and game.check_row_promotion(clicked_row):
+                            piece = board.squares[clicked_row][clicked_col].promotion_piece
+                            if game.promotion_color == "white":
+                                board.squares[0][clicked_col].piece = piece
+                            elif game.promotion_color == "black":
+                                board.squares[7][clicked_col].piece = piece
 
-                    if board.squares[clicked_row][clicked_col].has_piece():
+                            game.show_bg(screen)
+                            game.show_last_move(screen)
+                            game.show_moves(screen)
+                            game.show_pieces(screen)
+                    elif board.squares[clicked_row][clicked_col].has_piece():
                         # chinh
                         game.reset_moves()
                         piece = board.squares[clicked_row][clicked_col].piece
@@ -49,7 +62,7 @@ class Main:
                             dragger.drag_piece(piece)
                             # chỉnh mouse cursor khi dragging 
                             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
-                            
+
                             game.show_bg(screen)
                             game.show_last_move(screen)
                             game.show_moves(screen)

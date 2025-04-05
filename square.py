@@ -1,17 +1,20 @@
 
 class Square:
 
-    def __init__(self, row, col, piece = None):
+    def __init__(self, row, col, piece = None, promotion_piece = None):
         self.row = row
         self.col = col
         self.piece = piece
-        self.promotion = False
+        self.promotion_piece = promotion_piece
 
     def __eq__(self, other):
         return self.row == other.row and self.col == other.col
 
     def has_piece(self):
         return self.piece != None
+    
+    def has_promotion_piece(self):
+        return self.promotion_piece is not None
     
     def isempty(self):
         return not self.has_piece()

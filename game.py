@@ -3,6 +3,7 @@ import pygame.gfxdraw
 
 from const import *
 from board import Board
+from piece import *
 from dragger import Dragger
 from config import Config
 
@@ -10,6 +11,8 @@ class Game:
 
     def __init__(self):
         self.next_player = 'white'
+        self.promotion_col = False
+        self.promotion_color = False
         self.hovered_sqr = None
         self.board = Board()
         self.dragger = Dragger()
@@ -17,6 +20,7 @@ class Game:
 
         # chinh
         self.drawn_moves = set()
+        self.pro()
 
     def show_bg(self, surface):
         for row in range(ROWS):
@@ -45,10 +49,72 @@ class Game:
             y = ROWS * SQSIZE - 22
             surface.blit(label, (x, y))
 
+    def check_promotion(self):
+        self.promotion_col = False
+        self.promotion_color = False
+
+        for col in range(COLS):
+            if self.board.squares[0][col].has_piece():
+                piece = self.board.squares[0][col].piece
+                if isinstance(piece, Pawn):
+                    self.promotion_col = col
+                    self.promotion_color = "white"
+            if self.board.squares[7][col].has_piece():
+                piece = self.board.squares[7][col].piece
+                if isinstance(piece, Pawn):
+                    self.promotion_col = col
+                    self.promotion_color = "black"
+
+    def show_choose_promotion(self, surface):
+        for col in range(COLS):
+            if col == self.promotion_col:
+                if self.promotion_color == "white":
+                    for row in range(0,4):
+                        color = (255, 255, 255)
+                        rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
+
+                        pygame.draw.rect(surface, color, rect)
+                elif self.promotion_color == "black":
+                    for row in range(4,8):
+                        color = (255, 255, 255)
+                        rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
+
+                        pygame.draw.rect(surface, color, rect)
+
+    def check_row_promotion(self, a):
+        if self.promotion_color == "white":
+            return a < 4
+        elif self.promotion_color == "black":
+            return a >= 4
+    
+    # tạo quân phong cấp
+    def pro(self):
+        for col in range(COLS):
+            self.board.squares[0][col].promotion_piece = Queen("white")
+            self.board.squares[1][col].promotion_piece = Rook("white")
+            self.board.squares[2][col].promotion_piece = Knight("white")
+            self.board.squares[3][col].promotion_piece = Bishop("white")
+
+        for col in range(COLS):
+            self.board.squares[7][col].promotion_piece = Queen("black")
+            self.board.squares[6][col].promotion_piece = Rook("black")
+            self.board.squares[5][col].promotion_piece = Knight("black")
+            self.board.squares[4][col].promotion_piece = Bishop("black")
+
     def show_pieces(self, surface):
         for row in range(ROWS):
             for col in range(COLS):
-                if self.board.squares[row][col].has_piece():
+                if self.promotion_col and col == self.promotion_col and self.check_row_promotion(row) and self.board.squares[row][col].has_promotion_piece():
+                    piece = self.board.squares[row][col].promotion_piece
+
+                    if piece is not self.dragger.piece:
+                        piece.set_texture(size = 64)
+                        img = pygame.image.load(piece.texture)
+                        img_center = col * SQSIZE + SQSIZE // 2, row * SQSIZE + SQSIZE // 2
+                        piece.texture_rect = img.get_rect(center = img_center)
+                        surface.blit(img, piece.texture_rect)
+                
+                elif self.board.squares[row][col].has_piece():
                     piece = self.board.squares[row][col].piece
 
                     if piece is not self.dragger.piece:
@@ -57,6 +123,7 @@ class Game:
                         img_center = col * SQSIZE + SQSIZE // 2, row * SQSIZE + SQSIZE // 2
                         piece.texture_rect = img.get_rect(center = img_center)
                         surface.blit(img, piece.texture_rect)
+                        
 
     def show_moves(self, surface):
         if self.dragger.dragging:
